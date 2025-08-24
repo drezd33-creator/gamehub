@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Game Hub</title><style>
+body{background:#000;color:#0ff;font-family:Arial;text-align:center}
+h1{color:#f0f}
+#tabs{display:flex;flex-wrap:wrap;justify-content:center;margin:10px}
+#tabs button{margin:3px;padding:8px 12px;background:#111;color:#0ff;border:1px solid #0ff;cursor:pointer}
+.panel{display:none;margin:10px}
+canvas{background:#111;border:2px solid #0ff}
+#memoryBoard{display:grid;grid-template-columns:repeat(4,80px);gap:10px;justify-content:center}
+#memoryBoard div{width:80px;height:80px;background:#222;display:flex;align-items:center;justify-content:center;font-size:40px;color:#0ff;cursor:pointer}
+</style></head><body>
+<h1>Ultimate Game Hub</h1>
+<div id="tabs"><button onclick="show('snake')">Snake</button><button onclick="show('flappy')">Flappy</button><button onclick="show('ttt')">TicTacToe</button><button onclick="show('cookie')">Cookie</button><button onclick="show('pong')">Pong</button><button onclick="show('breakout')">Breakout</button><button onclick="show('pac')">Pac-Man</button><button onclick="show('whack')">Whack</button><button onclick="show('g2048')">2048</button><button onclick="show('memory')">Memory</button></div>
+
+<div id="snake" class="panel"><h2>Snake</h2><canvas id="snakeCanvas" width="400" height="400"></canvas></div>
+<div id="flappy" class="panel"><h2>Flappy</h2><canvas id="flappyCanvas" width="400" height="400"></canvas></div>
+<div id="ttt" class="panel"><h2>TicTacToe</h2><div id="tttBoard"></div><p id="tttMsg"></p></div>
+<div id="cookie" class="panel"><h2>Cookie Clicker</h2><button id="cookieBtn">🍪 Click</button><p id="cookieCount">0</p></div>
+<div id="pong" class="panel"><h2>Pong</h2><canvas id="pongCanvas" width="400" height="400"></canvas></div>
+<div id="breakout" class="panel"><h2>Breakout</h2><canvas id="breakoutCanvas" width="400" height="400"></canvas></div>
+<div id="pac" class="panel"><h2>Pac-Man</h2><canvas id="pacCanvas" width="400" height="400"></canvas></div>
+<div id="whack" class="panel"><h2>Whack-a-Mole</h2><canvas id="whackCanvas" width="400" height="400"></canvas></div>
+<div id="g2048" class="panel"><h2>2048</h2><canvas id="game2048" width="400" height="400"></canvas></div>
+<div id="memory" class="panel"><h2>Memory</h2><div id="memoryBoard"></div></div>
+
+<script>
+function show(id){document.querySelectorAll('.panel').forEach(p=>p.style.display="none");document.getElementById(id).style.display="block";}show('snake');
+
+// Snake
+const s=document.getElementById("snakeCanvas"),sc=s.getContext("2d");let sx=10,sy=10,gs=20,px=20,py=20,ax=15,ay=15,xv=0,yv=0,tr=[],ts=5;
+document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")xv=-1,yv=0;if(e.key==="ArrowUp")xv=0,yv=-1;if(e.key==="ArrowRight")xv=1,yv=0;if(e.key==="ArrowDown")xv=0,yv=1;});
+setInterval(()=>{px+=xv;py+=yv;if(px<0)px=sx-1;if(px>=sx)px=0;if(py<0)py=sy-1;if(py>=sy)py=0;sc.fillStyle="#000";sc.fillRect(0,0,s.width,s.height);sc.fillStyle="lime";for(let i=0;i<tr.length;i++){sc.fillRect(tr[i].x*gs,tr[i].y*gs,gs-2,gs-2);if(tr[i].x===px&&tr[i].y===py)ts=5;}tr.push({x:px,y:py});while(tr.length>ts)tr.shift();if(ax===px&&ay===py){ts++;ax=Math.floor(Math.random()*sx);ay=Math.floor(Math.random()*sy);}sc.fillStyle="red";sc.fillRect(ax*gs,ay*gs,gs-2,gs-2);},100);
+
+// Flappy
+const f=document.getElementById("flappyCanvas"),fc=f.getContext("2d");let fy=150,grav=1,vel=0,pipes=[];document.addEventListener("keydown",e=>{if(e.code==="Space")vel=-10;});setInterval(()=>{fc.fillStyle="#000";fc.fillRect(0,0,400,400);vel+=grav;fy+=vel;if(fy>400)fy=0;fc.fillStyle="yellow";fc.fillRect(50,fy,20,20);if(Math.random()<0.02)pipes.push({x:400,h:Math.random()*200+50});pipes.forEach(p=>{p.x-=2;fc.fillStyle="green";fc.fillRect(p.x,0,20,p.h);fc.fillRect(p.x,p.h+100,20,400);});pipes=pipes.filter(p=>p.x>0);},30);
+
+// TicTacToe
+const tb=document.getElementById("tttBoard"),tm=document.getElementById("tttMsg");let turn="X",cells=[];for(let i=0;i<9;i++){let d=document.createElement("button");d.textContent="";d.style.width="60px";d.style.height="60px";d.onclick=()=>{if(d.textContent===""){d.textContent=turn;turn=turn==="X"?"O":"X";tm.textContent="Turn: "+turn;}};tb.appendChild(d);cells.push(d);}
+
+// Cookie
+let c=0;cookieBtn.onclick=()=>{c++;cookieCount.textContent=c;};
+
+// Pong
+const p=document.getElementById("pongCanvas"),pc=p.getContext("2d");let bx=200,by=200,bvx=2,bvy=2,pp=180,op=180;
+document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")pp-=20;if(e.key==="ArrowRight")pp+=20;});setInterval(()=>{bx+=bvx;by+=bvy;if(bx<0||bx>400) bvx*=-1;if(by<0||by>400)bvy*=-1;if(by>380&&bx>pp&&bx<pp+80)bvy*=-1;pc.clearRect(0,0,400,400);pc.fillStyle="white";pc.fillRect(bx,by,10,10);pc.fillRect(pp,390,80,10);},20);
+
+// Breakout
+const br=document.getElementById("breakoutCanvas"),bc=br.getContext("2d");let ballX=200,ballY=300,bdx=3,bdy=-3,pX=160;document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")pX-=20;if(e.key==="ArrowRight")pX+=20;});setInterval(()=>{ballX+=bdx;ballY+=bdy;if(ballX<0||ballX>400)bdx*=-1;if(ballY<0) bdy*=-1;if(ballY>380&&ballX>pX&&ballX<pX+80)bdy*=-1;if(ballY>400){ballX=200;ballY=300;}bc.clearRect(0,0,400,400);bc.fillStyle="white";bc.fillRect(ballX,ballY,20,20);bc.fillRect(pX,390,80,10);},20);
+
+// Pac-Man
+const pac=document.getElementById("pacCanvas"),pxc=pac.getContext("2d");let px1=200,py1=200;document.addEventListener("keydown",e=>{if(e.key==="ArrowUp")py1-=20;if(e.key==="ArrowDown")py1+=20;if(e.key==="ArrowLeft")px1-=20;if(e.key==="ArrowRight")px1+=20;});setInterval(()=>{pxc.clearRect(0,0,400,400);pxc.fillStyle="yellow";pxc.beginPath();pxc.arc(px1+10,py1+10,10,0,Math.PI*2);pxc.fill();},30);
+
+// Whack
+const wh=document.getElementById("whackCanvas"),wc=wh.getContext("2d");let mx=Math.floor(Math.random()*8)*50,my=Math.floor(Math.random()*8)*50,s=0;wh.addEventListener("click",e=>{let r=wh.getBoundingClientRect();let x=e.clientX-r.left,y=e.clientY-r.top;if(x>mx&&x<mx+50&&y>my&&y<my+50){s++;mx=Math.floor(Math.random()*8)*50;my=Math.floor(Math.random()*8)*50;}});setInterval(()=>{wc.clearRect(0,0,400,400);wc.fillStyle="brown";wc.fillRect(mx,my,50,50);wc.fillStyle="white";wc.fillText("Score:"+s,10,390);},30);
+
+// 2048
+const g2048=document.getElementById("game2048").getContext("2d");let grid=Array.from({length:4},()=>Array(4).fill(0));
+function draw2048(){g2048.fillStyle="#111";g2048.fillRect(0,0,400,400);for(let r=0;r<4;r++)for(let c=0;c<4;c++){g2048.fillStyle=grid[r][c]===0?"#222":"#0ff";g2048.fillRect(c*100+5,r*100+5,90,90);if(grid[r][c]){g2048.fillStyle="#000";g2048.font="40px Arial";g2048.fillText(grid[r][c],c*100+30,r*100+60);}}}
+function addTile(){let e=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++)if(!grid[r][c])e.push({r,c});if(!e.length)return;let s=e[Math.floor(Math.random()*e.length)];grid[s.r][s.c]=Math.random()<.9?2:4;}
+function slide(r){let a=r.filter(v=>v);for(let i=0;i<a.length-1;i++)if(a[i]===a[i+1]){a[i]*=2;a.splice(i+1,1);}while(a.length<4)a.push(0);return a;}
+function move(d){if(d==="ArrowLeft"){for(let r=0;r<4;r++)grid[r]=slide(grid[r]);}else if(d==="ArrowRight"){for(let r=0;r<4;r++)grid[r]=slide(grid[r].reverse()).reverse();}else if(d==="ArrowUp"){for(let c=0;c<4;c++){let col=[grid[0][c],grid[1][c],grid[2][c],grid[3][c]];let n=slide(col);for(let r=0;r<4;r++)grid[r][c]=n[r];}}else if(d==="ArrowDown"){for(let c=0;c<4;c++){let col=[grid[0][c],grid[1][c],grid[2][c],grid[3][c]];let n=slide(col.reverse()).reverse();for(let r=0;r<4;r++)grid[r][c]=n[r];}}addTile();draw2048();}
+document.addEventListener("keydown",e=>{if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key))move(e.key);});addTile();addTile();draw2048();
+
+// Memory
+const mb=document.getElementById("memoryBoard");let cards="AABBCCDDEEFFGGHH".split("");cards.sort(()=>Math.random()-.5);let f=null,sn=null;cards.forEach(v=>{let d=document.createElement("div");d.onclick=()=>{if(d.textContent===""){d.textContent=v;if(!f)f=d;else{sn=d;setTimeout(()=>{if(f.textContent!==sn.textContent){f.textContent="";sn.textContent="";}f=null;sn=null;},800);}}};mb.appendChild(d);});
+</script></body></html>
